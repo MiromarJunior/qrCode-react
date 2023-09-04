@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import Quagga from 'quagga';
+import axios from  "axios"
 
 import './App.css'
 
 function App() {
 
-  const [qr,setQr] =  useState("");
+  const [isDetectionComplete, setIsDetectionComplete] = useState(false);
 
-  const resposta = (value:string)=>{
-    alert(value+"Miromar")
+  const resposta = async(value:string)=>{
+    const data = {value}
+   return await axios.get("http://localhost:5000",{params : data})
   }
 
  const  openCamera = async() => {
@@ -43,14 +45,20 @@ function App() {
         }
       );
   
-      Quagga.onDetected(function (result: any) {
+      Quagga.onDetected( async function (result: any) {
         console.log("Código de barras detectado:", result.codeResult.code);
-        alert("teste iuri" + result.codeResult.code);
-        alert(result.codeResult.code + "chegou");
-        setQr((result.codeResult.code).toString());
-        resposta((result.codeResult.code).toString()+"Mirom")
-        const resultadoElement = document.querySelector("#resultado") as HTMLElement;
-        resultadoElement.innerText = result.codeResult.code;
+        // alert("teste iuri" + result.codeResult.code);
+        // alert(result.codeResult.code + "chegou");
+        // setQr((result.codeResult.code).toString());
+        if (!isDetectionComplete) {
+          setIsDetectionComplete(true);
+          return resposta(result.codeResult.code);
+        }
+   
+        // const resultadoElement = document.querySelector("#resultado") as HTMLElement;
+        // resultadoElement.innerText = result.codeResult.code;
+      
+      return await resposta((result.codeResult.code).toString())
       });
       
     } catch (error) {
@@ -60,12 +68,12 @@ function App() {
 
 
   useEffect(() => {
- if(qr === ""){
+console.log("useeffect")
   openCamera();
- }
+ 
 
    
-  }, [qr]); // O array vazio [] garante que isso seja executado apenas uma vez, equivalente ao componentDidMount
+  }, []); // O array vazio [] garante que isso seja executado apenas uma vez, equivalente ao componentDidMount
 
   
   return (
